@@ -1,9 +1,6 @@
 param([Parameter(Mandatory=$true)][string]$chocoPackages)
 cls
 
-# Rename fosadmin to Administrator
-Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
-
 # Expand OS disk
 foreach($disk in Get-Disk)
 {
@@ -98,6 +95,9 @@ $cn.Delete("User", $userName)
 
 # Delete the artifactInstaller user profile
 gwmi win32_userprofile | where { $_.LocalPath -like "*$userName*" } | foreach { $_.Delete() }
+
+# Rename fosadmin to Administrator
+Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
 
 # Configure a host for remote management with Ansible
 
