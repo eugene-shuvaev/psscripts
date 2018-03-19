@@ -1,6 +1,9 @@
 param([Parameter(Mandatory=$true)][string]$chocoPackages)
 cls
 
+# Rename fosadmin to Administrator
+Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
+
 # Expand OS disk
 foreach($disk in Get-Disk)
 {
