@@ -1,5 +1,15 @@
-param([Parameter(Mandatory=$true)][string]$chocoPackages)
-cls
+Param (
+    [Parameter(Mandatory=$true)][string]$chocoPackages,
+    [string]$SubjectName = $env:COMPUTERNAME,
+    [int]$CertValidityDays = 1095,
+    [switch]$SkipNetworkProfileCheck,
+    $CreateSelfSignedCert = $true,
+    [switch]$ForceNewSSLCert,
+    [switch]$GlobalHttpFirewallAccess,
+    [switch]$DisableBasicAuth = $false,
+    [switch]$EnableCredSSP
+)
+
 
 # Expand OS disk
 foreach($disk in Get-Disk)
@@ -81,14 +91,12 @@ Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $cre
 #"Install each Chocolatey Package"
 $chocoPackages.Split(";") | ForEach {
     $command = "cinst " + $_ + " -y -force"
-    $command | Out-File $LogFile -Append
+    $command
     $sb = [scriptblock]::Create("$command")
 
     # Use the current user profile
     Invoke-Command -ScriptBlock $sb -ArgumentList $chocoPackages -ComputerName $env:COMPUTERNAME -Credential $credential | Out-Null
 }
-
-Disable-PSRemoting -Force
 
 # Delete the artifactInstaller user
 $cn.Delete("User", $userName)
@@ -96,23 +104,7 @@ $cn.Delete("User", $userName)
 # Delete the artifactInstaller user profile
 gwmi win32_userprofile | where { $_.LocalPath -like "*$userName*" } | foreach { $_.Delete() }
 
-# Rename fosadmin to Administrator
-Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
-
 # Configure a host for remote management with Ansible
-
-[CmdletBinding()]
-
-Param (
-    [string]$SubjectName = $env:COMPUTERNAME,
-    [int]$CertValidityDays = 1095,
-    [switch]$SkipNetworkProfileCheck,
-    $CreateSelfSignedCert = $true,
-    [switch]$ForceNewSSLCert,
-    [switch]$GlobalHttpFirewallAccess,
-    [switch]$DisableBasicAuth = $false,
-    [switch]$EnableCredSSP
-)
 
 Function Write-Log
 {
@@ -455,3 +447,6 @@ Else
     Throw "Unable to establish an HTTP or HTTPS remoting session."
 }
 Write-VerboseLog "PS Remoting has been successfully configured for Ansible."
+
+# Rename fosadmin to Administrator
+Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
