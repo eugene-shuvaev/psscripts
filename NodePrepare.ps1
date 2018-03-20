@@ -10,7 +10,6 @@ Param (
     [switch]$EnableCredSSP
 )
 
-
 # Expand OS disk
 foreach($disk in Get-Disk)
 {
@@ -79,6 +78,10 @@ Enable-PSRemoting -Force -SkipNetworkProfileCheck
 #"Changing ExecutionPolicy" | Out-File $LogFile -Append
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
+# Rename fosadmin to Administrator
+$renameCommand = wmic UserAccount where Name="fosadmin" call Rename Name="Administrator"
+Invoke-Command -ScriptBlock $renameCommand -ComputerName $env:COMPUTERNAME -Credential $credential
+
 # run remoting configuration script for Ansible
 $ansibleCommand = $file = $PSScriptRoot + "\ConfigureRemotingForAnsible.ps1"
 Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential
@@ -107,6 +110,3 @@ $cn.Delete("User", $userName)
 
 # Delete the artifactInstaller user profile
 gwmi win32_userprofile | where { $_.LocalPath -like "*$userName*" -and $_.Loaded -ne $true } | Remove-WmiObject
-
-# Rename fosadmin to Administrator
-Rename-LocalUser -Name "fosadmin" -NewName "Administrator"
