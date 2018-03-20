@@ -79,6 +79,10 @@ Enable-PSRemoting -Force -SkipNetworkProfileCheck
 #"Changing ExecutionPolicy" | Out-File $LogFile -Append
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
+# run remoting configuration script for Ansible
+$ansibleCommand = $file = $PSScriptRoot + "\ConfigureRemotingForAnsible.ps1"
+Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential
+
 # Install Choco
 #"Installing Chocolatey" | Out-File $LogFile -Append
 $sb = { iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')) }
@@ -97,10 +101,6 @@ $chocoPackages.Split(";") | ForEach {
     # Use the current user profile
     Invoke-Command -ScriptBlock $sb -ArgumentList $chocoPackages -ComputerName $env:COMPUTERNAME -Credential $credential | Out-Null
 }
-
-# run remoting configuration script for Ansible
-$ansibleCommand = $file = $PSScriptRoot + "\ConfigureRemotingForAnsible.ps1"
-Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential
 
 # Delete the artifactInstaller user
 $cn.Delete("User", $userName)
