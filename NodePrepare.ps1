@@ -1,6 +1,6 @@
 Param (
     [Parameter(Mandatory=$true)][string]$chocoPackages,
-	[Parameter(Mandatory=$true)][secureString]$vmAdminPassword
+	[Parameter(Mandatory=$true)][string]$vmAdminPassword
 )
 
 # Expand OS disk
