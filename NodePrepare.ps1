@@ -90,7 +90,7 @@ Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $cre
 
 #"Install each Chocolatey Package"
 $chocoPackages.Split(";") | ForEach {
-    $command = "cinst " + $_ + " -y -force"
+    $command = "cinst " + $_ + " -y"
     $command
     $sb = [scriptblock]::Create("$command")
 
