@@ -102,7 +102,7 @@ $chocoPackages.Split(";") | ForEach {
 $cn.Delete("User", $userName)
 
 # Delete the artifactInstaller user profile
-gwmi win32_userprofile | where { $_.LocalPath -like "*$userName*" } | foreach { $_.Delete() }
+gwmi win32_userprofile | where { $_.LocalPath -like "*$userName*" -and $_.Loaded -ne $true } | Remove-WmiObject
 
 # Configure a host for remote management with Ansible
 
