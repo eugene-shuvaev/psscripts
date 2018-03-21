@@ -53,7 +53,7 @@ $cn = [ADSI]"WinNT://$env:ComputerName"
 $user = $cn.Create("User", $userName)
 $user.SetPassword($password)
 $user.SetInfo()
-$user.description = "Choco artifact installer"
+$user.description = "Local administrator"
 $user.SetInfo()
 
 # Add user to the Administrators group
@@ -83,6 +83,9 @@ Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $cre
 # run remoting configuration script for Ansible
 $ansibleCommand = $PSScriptRoot + "\ConfigureRemotingForAnsible.ps1"
 Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential
+
+# it's weird, but it seems that the first package installation doesn't find cinst command, so slepp a while
+Start-Sleep -s 10
 
 #"Install each Chocolatey Package"
 $chocoPackages.Split(";") | ForEach {
