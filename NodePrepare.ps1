@@ -78,11 +78,11 @@ Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $cre
 
 #"Disabling UAC" | Out-File $LogFile -Append
 $sb = { Set-ItemProperty -path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System -name EnableLua -value 0 }
-Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $credential
+Invoke-Command -ScriptBlock $sb -ComputerName $env:COMPUTERNAME -Credential $credential | Out-Null
 
 # run remoting configuration script for Ansible
 $ansibleCommand = $PSScriptRoot + "\ConfigureRemotingForAnsible.ps1"
-Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential
+Invoke-Command -FilePath $ansibleCommand -ComputerName $env:COMPUTERNAME -Credential $credential | Out-Null
 
 # it's weird, but it seems that the first package installation doesn't find cinst command, so slepp a while
 Start-Sleep -s 10
